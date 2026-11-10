@@ -1,0 +1,78 @@
+@model CalidadYPrueba_T3.ViewModels.CatalogoViewModel
+@{
+    ViewData["Title"] = "Catálogo de equipos";
+    var categoria = Model.Categorias.FirstOrDefault(x => x.Id == Model.CategoriaId)?.Nombre;
+}
+<header class="page-heading catalog-heading">
+    <div><p class="eyebrow">EQUIPAMIENTO DEL LABORATORIO</p><h1>Catálogo de equipos</h1><p class="text-muted">Encuentra el material para tu próxima práctica.</p></div>
+    @if (User.IsInRole("Encargado"))
+    {
+        <a class="btn btn-primary" asp-action="Crear">Registrar equipo</a>
+    }
+</header>
+@if (TempData["EquipoCreado"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+<form method="get" asp-action="Index" class="catalog-filters" aria-label="Filtrar equipos">
+    <div><label for="categoriaId" class="form-label">Categoría</label>
+        <select name="categoriaId" id="categoriaId" class="form-select">
+            <option value="">Todas las categorías</option>
+            @foreach (var opcion in Model.Categorias)
+            {
+                <option value="@opcion.Id" selected="@(Model.CategoriaId == opcion.Id)">@opcion.Nombre</option>
+            }
+        </select>
+    </div>
+    <button class="btn btn-primary" type="submit">Aplicar filtro</button>
+    @if (Model.CategoriaId.HasValue || !ViewData.ModelState.IsValid)
+    {
+        <a class="filter-clear" asp-action="Index">Limpiar filtro</a>
+    }
+</form>
+<div asp-validation-summary="All" class="alert alert-danger mt-3" role="alert"></div>
+@if (ViewData.ModelState.IsValid)
+{
+    <div class="catalog-summary"><p><strong>@Model.Total</strong> @(Model.Total == 1 ? "equipo" : "equipos") · @(categoria ?? "Todas las categorías")</p><p>@Model.Disponibles disponibles <span aria-hidden="true">/</span> @Model.Prestados prestados</p></div>
+    @if (Model.Equipos.Count == 0)
+    {
+        <section class="content-panel empty-catalog" aria-labelledby="empty-title">
+            <h2 id="empty-title">@(Model.CategoriaId.HasValue ? "No hay equipos disponibles en esta categoría" : "Aún no hay equipos registrados")</h2>
+            <p class="text-muted">@(Model.CategoriaId.HasValue ? "Consulta otra categoría o vuelve al catálogo completo." : "El encargado del laboratorio puede registrar el inventario desde esta sección.")</p>
+            @if (Model.CategoriaId.HasValue) { <a asp-action="Index">Ver todas las categorías</a> }
+        </section>
+    }
+    else
+    {
+        <ul class="equipment-grid" aria-label="Equipos del catálogo">
+            @foreach (var equipo in Model.Equipos)
+            {
+                <li class="equipment-card">
+                    <div class="equipment-top"><span class="equipment-category">@equipo.Categoria</span><span class="equipment-status @(equipo.Prestado ? "is-borrowed" : "is-available")">@(equipo.Prestado ? "Prestado" : "Disponible")</span></div>
+                    <h2>@equipo.Nombre</h2>
+                    <dl><dt>Código de inventario</dt><dd>@equipo.CodigoInventario</dd></dl>
+                    @if (User.IsInRole("Estudiante"))
+                    {
+                        @if (!equipo.Prestado)
+                        {
+                            <a class="btn btn-outline-secondary reserve-link" asp-controller="Reservas" asp-action="Crear" asp-route-equipoId="@equipo.Id">Solicitar reserva</a>
+                        }
+                        else
+                        {
+                            <p class="equipment-unavailable">Pendiente de devolución</p>
+                        }
+                    }
+                </li>
+            }
+        </ul>
+        @if (Model.TotalPaginas > 1)
+        {
+            <nav class="catalog-pagination" aria-label="Páginas del catálogo">
+                @if (Model.Pagina > 1) { <a class="btn btn-outline-secondary" asp-route-categoriaId="@Model.CategoriaId" asp-route-pagina="@(Model.Pagina - 1)">Anterior</a> }
+                <span aria-current="page">Página @Model.Pagina de @Model.TotalPaginas</span>
+                @if (Model.Pagina < Model.TotalPaginas) { <a class="btn btn-outline-secondary" asp-route-categoriaId="@Model.CategoriaId" asp-route-pagina="@(Model.Pagina + 1)">Siguiente</a> }
+            </nav>
+        }
+    }
+    <p class="catalog-note">Disponibilidad actual, consultada a las @Model.ConsultadoEn.ToOffset(TimeSpan.FromHours(-5)).ToString("HH:mm") (hora de Lima). Los horarios futuros se validarán al solicitar una reserva.</p>
+}

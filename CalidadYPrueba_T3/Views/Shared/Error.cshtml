@@ -1,0 +1,15 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<h1>No pudimos completar la solicitud</h1>
+<p>Intenta nuevamente en unos momentos. Si el problema continúa, comunícate con el encargado del laboratorio.</p>
+
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>Código de referencia:</strong> <code>@Model.RequestId</code>
+    </p>
+}
+

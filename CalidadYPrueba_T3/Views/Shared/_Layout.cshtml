@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · LabTrack</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <header class="site-header">
+        <nav class="container app-nav" aria-label="Navegación principal">
+            <a class="brand" asp-controller="Home" asp-action="Index"><span class="brand-symbol" aria-hidden="true">L<span>t</span></span>LabTrack</a>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="session-nav">
+                    <a asp-controller="Home" asp-action="Index">Mi panel</a>
+                    @if (User.IsInRole("Estudiante") || User.IsInRole("Encargado"))
+                    {
+                        <a asp-controller="Catalogo" asp-action="Index">Catálogo</a>
+                    }
+                    <span class="session-code">@User.Identity.Name</span>
+                    @if (User.IsInRole("Estudiante"))
+                    {
+                        <a asp-controller="Reservas" asp-action="Index">Mis reservas</a>
+                    }
+                    <form asp-controller="Cuenta" asp-action="Salir" method="post">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Cerrar sesión</button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <span class="header-caption">Laboratorios universitarios</span>
+            }
+        </nav>
+    </header>
+    <main id="contenido" class="container app-main" tabindex="-1">@RenderBody()</main>
+    <footer class="site-footer"><div class="container">LabTrack · Gestión de equipos de laboratorio</div></footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

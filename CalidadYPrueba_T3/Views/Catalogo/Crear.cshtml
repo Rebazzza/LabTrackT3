@@ -1,0 +1,20 @@
+@model CalidadYPrueba_T3.ViewModels.CrearEquipoViewModel
+@{
+    ViewData["Title"] = "Registrar equipo";
+}
+<section class="content-panel narrow-panel">
+    <p class="eyebrow">INVENTARIO DEL LABORATORIO</p>
+    <h1>Registrar equipo</h1>
+    <p class="text-muted mb-4">Añade un equipo al catálogo con su código único de inventario.</p>
+    <form method="post" asp-action="Crear">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <div class="mb-3"><label asp-for="Nombre" class="form-label"></label><input asp-for="Nombre" class="form-control" aria-describedby="nombre-error" /><span asp-validation-for="Nombre" id="nombre-error" class="field-error"></span></div>
+        <div class="mb-3"><label asp-for="CodigoInventario" class="form-label"></label><input asp-for="CodigoInventario" class="form-control" aria-describedby="inventario-error" /><span asp-validation-for="CodigoInventario" id="inventario-error" class="field-error"></span></div>
+        <div class="mb-4"><label asp-for="CategoriaId" class="form-label"></label>
+            <select asp-for="CategoriaId" class="form-select" aria-describedby="categoria-error"><option value="">Selecciona una categoría</option>
+                @foreach (var categoria in Model.Categorias) { <option value="@categoria.Id">@categoria.Nombre</option> }
+            </select><span asp-validation-for="CategoriaId" id="categoria-error" class="field-error"></span>
+        </div>
+        <div class="form-actions"><button type="submit" class="btn btn-primary">Guardar equipo</button><a asp-action="Index">Volver al catálogo</a></div>
+    </form>
+</section>

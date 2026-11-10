@@ -1,0 +1,15 @@
+@model CalidadYPrueba_T3.ViewModels.PanelEncargadoViewModel
+@{
+    ViewData["Title"] = "Panel del laboratorio";
+}
+<header class="page-heading">
+    <p class="eyebrow">ESPACIO DEL ENCARGADO</p>
+    <h1>Panel del laboratorio</h1>
+    <p class="text-muted">Hola, @Model.Nombre. Consulta el estado general de los préstamos.</p>
+    <a class="btn btn-primary mt-2" asp-controller="Catalogo" asp-action="Index">Ver inventario</a>
+</header>
+<div class="summary-grid">
+    <section class="summary-item"><h2>Solicitudes pendientes</h2><p>@Model.Pendientes</p><span>En espera de revisión</span></section>
+    <section class="summary-item"><h2>Préstamos por devolver</h2><p>@Model.PorDevolver</p><span>Reservas aprobadas sin devolución</span></section>
+    <section class="summary-item"><h2>Equipos registrados</h2><p>@Model.Equipos</p><span>Inventario del laboratorio</span></section>
+</div>

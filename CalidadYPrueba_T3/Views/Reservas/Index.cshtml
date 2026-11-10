@@ -1,0 +1,37 @@
+@model CalidadYPrueba_T3.ViewModels.MisReservasViewModel
+@using CalidadYPrueba_T3.Services
+@{
+    ViewData["Title"] = "Mis reservas";
+}
+<header class="page-heading catalog-heading"><div><p class="eyebrow">MI ACTIVIDAD</p><h1>Mis reservas</h1><p class="text-muted">Consulta tus solicitudes y su estado. Horarios en hora de Lima.</p></div><a class="btn btn-primary" asp-controller="Catalogo" asp-action="Index">Buscar un equipo</a></header>
+@if (TempData["ReservaCreada"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+@if (Model.Total == 0)
+{
+    <section class="content-panel empty-catalog"><h2>Aún no tienes reservas</h2><p class="text-muted">Explora el catálogo y solicita el equipo que necesitas para tu práctica.</p><a asp-controller="Catalogo" asp-action="Index">Explorar equipos</a></section>
+}
+else
+{
+    <p class="text-muted">@Model.Total @(Model.Total == 1 ? "solicitud registrada" : "solicitudes registradas")</p>
+    <ul class="reservation-list">
+        @foreach (var reserva in Model.Reservas)
+        {
+            <li class="content-panel reservation-row">
+                <div class="reservation-row-heading"><div><p class="eyebrow">SOLICITUD #@reserva.Id</p><h2>@reserva.Equipo</h2><p class="text-muted">Inventario: @reserva.Inventario</p></div><span class="equipment-status reservation-status-@reserva.Estado.ToString().ToLowerInvariant()">@reserva.Estado</span></div>
+                <dl class="reservation-dates"><div><dt>Inicio</dt><dd>@reserva.Inicio.ToOffset(ReservaService.DesfaseLima).ToString("dd/MM/yyyy HH:mm")</dd></div><div><dt>Fin</dt><dd>@reserva.Fin.ToOffset(ReservaService.DesfaseLima).ToString("dd/MM/yyyy HH:mm")</dd></div></dl>
+                @if (reserva.MotivoRechazo is not null) { <p class="reservation-reason"><strong>Motivo de rechazo:</strong> @reserva.MotivoRechazo</p> }
+                @if (reserva.DevueltaEn.HasValue) { <p class="catalog-note">Devuelto el @reserva.DevueltaEn.Value.ToOffset(ReservaService.DesfaseLima).ToString("dd/MM/yyyy HH:mm").</p> }
+            </li>
+        }
+    </ul>
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav class="catalog-pagination" aria-label="Páginas de mis reservas">
+            @if (Model.Pagina > 1) { <a class="btn btn-outline-secondary" asp-route-pagina="@(Model.Pagina - 1)">Anterior</a> }
+            <span aria-current="page">Página @Model.Pagina de @Model.TotalPaginas</span>
+            @if (Model.Pagina < Model.TotalPaginas) { <a class="btn btn-outline-secondary" asp-route-pagina="@(Model.Pagina + 1)">Siguiente</a> }
+        </nav>
+    }
+}

@@ -1,0 +1,44 @@
+@model CalidadYPrueba_T3.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar sesión";
+}
+<div class="login-grid">
+    <section class="login-intro" aria-labelledby="intro-title">
+        <p class="eyebrow">GESTIÓN DE LABORATORIOS</p>
+        <h1 id="intro-title">Tu práctica empieza aquí.</h1>
+        <p class="intro-copy">Accede a tu espacio de laboratorio con tu código y contraseña.</p>
+        <div class="intro-note"><span class="note-mark" aria-hidden="true">LT</span><p>Equipos, horarios y préstamos.<br />Todo en un mismo lugar.</p></div>
+    </section>
+    <section class="login-card" aria-labelledby="login-title">
+        <p class="eyebrow">BIENVENIDO A LABTRACK</p>
+        <h2 id="login-title">Iniciar sesión</h2>
+        <p class="text-muted mb-4">Ingresa los datos de tu cuenta.</p>
+        @if (TempData["SesionCerrada"] is string mensaje)
+        {
+            <div class="alert alert-success" role="status">@mensaje</div>
+        }
+        <form asp-controller="Cuenta" asp-action="Login" method="post">
+            <input asp-for="ReturnUrl" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <div class="mb-3">
+                <label asp-for="Codigo" class="form-label"></label>
+                <input asp-for="Codigo" class="form-control" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="codigo-error" />
+                <span asp-validation-for="Codigo" id="codigo-error" class="field-error"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" autocomplete="current-password" aria-describedby="password-error" />
+                <span asp-validation-for="Password" id="password-error" class="field-error"></span>
+            </div>
+            <div class="form-check mb-4">
+                <input asp-for="Recordarme" class="form-check-input" />
+                <label asp-for="Recordarme" class="form-check-label"></label>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+        </form>
+        <p class="login-help">Si no tienes una cuenta o necesitas ayuda con el acceso, comunícate con el encargado del laboratorio.</p>
+    </section>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

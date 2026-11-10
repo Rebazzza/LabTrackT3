@@ -1,0 +1,24 @@
+@model CalidadYPrueba_T3.ViewModels.PanelEstudianteViewModel
+@{
+    ViewData["Title"] = "Mi panel";
+}
+<header class="page-heading">
+    <p class="eyebrow">ESPACIO DEL ESTUDIANTE</p>
+    <h1>Hola, @Model.Nombre</h1>
+    <p class="text-muted">Este es el resumen de tus préstamos de laboratorio.</p>
+    <a class="btn btn-primary mt-2" asp-controller="Catalogo" asp-action="Index">Explorar equipos</a>
+    <a class="btn btn-outline-secondary mt-2" asp-controller="Reservas" asp-action="Index">Mis reservas</a>
+</header>
+@if (Model.Estado == EstadoEstudiante.Penalizado)
+{
+    <div class="alert alert-warning" role="status">Tu cuenta figura como penalizada. Comunícate con el encargado para conocer el detalle.</div>
+}
+<div class="summary-grid">
+    <section class="summary-item"><h2>Solicitudes pendientes</h2><p>@Model.Pendientes</p><span>En espera de revisión</span></section>
+    <section class="summary-item"><h2>Reservas aprobadas</h2><p>@Model.Aprobadas</p><span>Con devolución pendiente</span></section>
+    <section class="summary-item"><h2>Equipos devueltos</h2><p>@Model.Devueltas</p><span>Préstamos completados</span></section>
+</div>
+<section class="content-panel mt-4">
+    <h2>Mi cuenta</h2>
+    <dl class="account-details"><div><dt>Código de estudiante</dt><dd>@Model.Codigo</dd></div><div><dt>Estado</dt><dd>@Model.Estado</dd></div></dl>
+</section>

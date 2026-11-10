@@ -1,0 +1,48 @@
+@model CalidadYPrueba_T3.ViewModels.CrearReservaViewModel
+@using CalidadYPrueba_T3.Services
+@{
+    ViewData["Title"] = "Solicitar reserva";
+}
+<header class="page-heading"><p class="eyebrow">PRÉSTAMOS DE LABORATORIO</p><h1>Solicitar reserva</h1><p class="text-muted">Selecciona la fecha y el horario de uso. Todas las horas corresponden a Lima.</p></header>
+<div class="reservation-layout">
+    <section class="content-panel" aria-labelledby="schedule-title">
+        <h2 id="schedule-title">Horario solicitado</h2>
+        @if (Model.Equipo!.Prestado)
+        {
+            <div class="alert alert-warning mt-3" role="status">Este equipo está prestado. Debe registrarse su devolución antes de solicitar una reserva.</div>
+        }
+        <form method="post" asp-action="Crear" class="mt-4">
+            <input asp-for="EquipoId" type="hidden" />
+            <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+            <div class="mb-3"><label asp-for="Fecha" class="form-label"></label><input asp-for="Fecha" type="date" asp-format="{0:yyyy-MM-dd}" min="@Model.Hoy.ToString("yyyy-MM-dd")" class="form-control" aria-describedby="fecha-error" /><span asp-validation-for="Fecha" id="fecha-error" class="field-error"></span></div>
+            <div class="time-fields">
+                <div><label asp-for="HoraInicio" class="form-label"></label><input asp-for="HoraInicio" type="time" class="form-control" aria-describedby="inicio-error" /><span asp-validation-for="HoraInicio" id="inicio-error" class="field-error"></span></div>
+                <div><label asp-for="HoraFin" class="form-label"></label><input asp-for="HoraFin" type="time" class="form-control" aria-describedby="fin-error" /><span asp-validation-for="HoraFin" id="fin-error" class="field-error"></span></div>
+            </div>
+            <p class="catalog-note mb-4">El inicio y el fin deben estar en la misma fecha. La solicitud quedará pendiente hasta que el encargado la apruebe.</p>
+            <div class="form-actions">
+                @if (!Model.Equipo.Prestado) { <button type="submit" class="btn btn-primary">Enviar solicitud</button> }
+                <a asp-controller="Catalogo" asp-action="Index">Volver al catálogo</a>
+            </div>
+        </form>
+    </section>
+    <aside class="content-panel" aria-labelledby="equipment-title">
+        <p class="eyebrow">EQUIPO SELECCIONADO</p><h2 id="equipment-title">@Model.Equipo.Nombre</h2>
+        <dl class="reservation-equipment"><dt>Inventario</dt><dd>@Model.Equipo.Codigo</dd><dt>Categoría</dt><dd>@Model.Equipo.Categoria</dd></dl>
+        <h3 class="schedule-subtitle">Próximos horarios aprobados</h3>
+        @if (Model.HorariosAprobados.Count == 0)
+        {
+            <p class="text-muted">No hay horarios aprobados próximos. La disponibilidad se comprobará al enviar tu solicitud.</p>
+        }
+        else
+        {
+            <ul class="approved-slots">
+                @foreach (var horario in Model.HorariosAprobados)
+                {
+                    <li><strong>@horario.Inicio.ToOffset(ReservaService.DesfaseLima).ToString("dd/MM/yyyy")</strong><br />@horario.Inicio.ToOffset(ReservaService.DesfaseLima).ToString("HH:mm") – @horario.Fin.ToOffset(ReservaService.DesfaseLima).ToString("dd/MM/yyyy HH:mm")</li>
+                }
+            </ul>
+            <p class="catalog-note">Se muestran hasta 10 horarios. El sistema comprobará todos antes de guardar.</p>
+        }
+    </aside>
+</div>
