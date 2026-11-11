@@ -142,3 +142,88 @@ h2 { font-size: 1.5rem; letter-spacing: -.02em; }
     .session-nav { width: 100%; }
     .session-code { max-width: 120px; }
 }
+
+/* Identidad clara de LabTrack */
+:root {
+  --ink: #302713;
+  --muted: #625a49;
+  --accent: #ffb819;
+  --line: #e8e0d0;
+  --paper: #fbfaf6;
+  --bs-primary-rgb: 255, 184, 25;
+  --bs-link-color-rgb: 128, 82, 0;
+  --bs-link-hover-color-rgb: 101, 65, 0;
+  --bs-focus-ring-color: #ffb81955;
+}
+body { background: var(--paper); font-family: "Segoe UI", "Aptos", Arial, sans-serif; }
+::selection { background: #ffe5a0; color: var(--ink); }
+a { color: #805200; }
+a:hover { color: #654100; }
+.site-header { border-bottom-color: var(--line); }
+.app-nav { min-height: 72px; padding-block: 10px; }
+.brand { gap: 10px; font-size: 1.28rem; letter-spacing: -.025em; line-height: 1.05; flex-shrink: 0; }
+.brand-symbol { width: 38px; height: 38px; border-radius: 9px; background: var(--accent); color: #302713; font-size: 1.05rem; letter-spacing: -.07em; }
+.brand > span:last-child { display: grid; gap: 3px; }
+.brand small { font-size: .65rem; font-weight: 500; letter-spacing: .015em; color: var(--muted); }
+.session-nav { gap: 4px; }
+.session-nav > a { padding: 10px 12px; color: var(--muted); text-decoration: none; font-size: .9rem; font-weight: 600; border-radius: 8px; }
+.session-nav > a:hover, .session-nav > a.is-current { background: #fff0c5; color: #724900; }
+.session-code { padding-inline: 10px; font-size: .8rem; }
+.session-nav .btn { min-height: 36px; margin-left: 4px; }
+.app-main { padding-block: 42px 60px; }
+.site-footer { background: #fff; border-top-color: var(--line); }
+h1 { color: #302713; font-weight: 700; }
+h2 { color: var(--ink); }
+.text-muted { color: var(--muted) !important; }
+.eyebrow { color: #805200; }
+.btn { border-radius: 8px; }
+.btn-primary { --bs-btn-color: #302713; --bs-btn-bg: #ffb819; --bs-btn-border-color: #e9a500; --bs-btn-hover-color: #302713; --bs-btn-hover-bg: #f1aa0b; --bs-btn-hover-border-color: #d59700; --bs-btn-active-color: #302713; --bs-btn-active-bg: #e9a500; --bs-btn-active-border-color: #ca8d00; --bs-btn-focus-shadow-rgb: 255, 184, 25; }
+.btn-outline-secondary { --bs-btn-color: #5c4620; --bs-btn-border-color: #cfc3ab; --bs-btn-hover-bg: #fff0c5; --bs-btn-hover-border-color: #d9aa40; --bs-btn-hover-color: #5c3d00; }
+.form-control, .form-select { border-color: #cfc3ab; }
+.form-control:focus, .form-select:focus { border-color: #b77800; box-shadow: 0 0 0 3px #ffb81945; }
+.form-check-input:checked { background-color: #8c5a00; border-color: #8c5a00; }
+:focus-visible { outline-color: #a86c00; }
+.login-card, .content-panel, .summary-item, .catalog-filters, .requests-table-region { border-color: var(--line); }
+.summary-item p { color: #805200; }
+.page-heading { margin-bottom: 26px; }
+.catalog-heading { align-items: end; }
+.catalog-heading h1 { font-size: clamp(2rem, 3.5vw, 2.75rem); margin-bottom: 8px; }
+.catalog-heading .text-muted { margin: 0; font-size: 1rem; }
+.catalog-filters { gap: 12px; padding: 18px 22px; border-radius: 12px; align-items: end; }
+.catalog-filters > div { flex-basis: 320px; }
+.catalog-filters .form-label { margin-bottom: 6px; }
+.catalog-filters .form-select { min-height: 44px; }
+.catalog-summary { margin: 22px 0 16px; }
+.equipment-grid { gap: 18px; }
+.equipment-card { display: flex; flex-direction: column; padding: 0; overflow: hidden; border-color: var(--line); border-radius: 14px; }
+.equipment-image { position: relative; display: grid; place-items: center; height: 250px; background: #f5f1e8; overflow: hidden; }
+.equipment-image img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.equipment-image-fallback { display: grid; place-items: center; width: 66px; height: 66px; border-radius: 16px; background: #ffe6a3; color: #694300; font-size: 1.25rem; font-weight: 700; }
+.equipment-body { display: flex; flex: 1; flex-direction: column; padding: 20px; }
+.equipment-category { color: #805200; font-size: .78rem; font-weight: 650; }
+.equipment-status { font-size: .75rem; white-space: nowrap; }
+.is-available { color: #176644; background: #e6f4ed; }
+.is-borrowed { color: #85591c; background: #fff1dd; }
+.reservation-status-devuelta { color: #61563f; background: #f2eee5; }
+.equipment-card h2 { font-size: 1.13rem; line-height: 1.3; margin: 16px 0 14px; min-height: 2.6em; }
+.equipment-card dl { padding-top: 12px; margin-top: auto; }
+.equipment-card dt { font-size: .75rem; }
+.equipment-card dd { margin-top: 3px; font-family: inherit; font-size: .85rem; font-weight: 600; color: #5d513b; }
+.reserve-link { margin-top: 18px; min-height: 42px; }
+.equipment-unavailable { margin: 22px 0 0; min-height: 42px; display: flex; align-items: center; justify-content: center; background: #f3f0e9; border-radius: 8px; }
+.catalog-note { margin-top: 22px; }
+.requests-table th { background: #f7f1e3; }
+@media (max-width: 991px) {
+  .app-nav { align-items: start; flex-wrap: wrap; }
+  .session-nav { width: 100%; }
+  .equipment-image { height: 235px; }
+}
+@media (max-width: 575px) {
+  .app-main { padding-block: 28px 44px; }
+  .session-nav { gap: 4px; }
+  .session-nav > a { padding: 8px 9px; }
+  .session-code { padding-inline: 8px; }
+  .equipment-image { height: 260px; }
+  .equipment-card h2 { min-height: 0; }
+  .catalog-filters { padding: 16px; }
+}

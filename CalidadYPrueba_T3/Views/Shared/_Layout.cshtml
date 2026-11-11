@@ -11,24 +11,24 @@
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
     <header class="site-header">
         <nav class="container app-nav" aria-label="Navegación principal">
-            <a class="brand" asp-controller="Home" asp-action="Index"><span class="brand-symbol" aria-hidden="true">L<span>t</span></span>LabTrack</a>
+            <a class="brand" asp-controller="Home" asp-action="Index"><span class="brand-symbol" aria-hidden="true">Lt</span><span>LabTrack<small>Equipos de laboratorio</small></span></a>
             @if (User.Identity?.IsAuthenticated == true)
             {
                 <div class="session-nav">
-                    <a asp-controller="Home" asp-action="Index">Mi panel</a>
+                    <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() is "Estudiante" or "Encargado" ? "is-current" : null)" asp-controller="Home" asp-action="Index">Mi panel</a>
                     @if (User.IsInRole("Estudiante") || User.IsInRole("Encargado"))
                     {
-                        <a asp-controller="Catalogo" asp-action="Index">Catálogo</a>
+                        <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Catalogo" ? "is-current" : null)" asp-controller="Catalogo" asp-action="Index">Catálogo</a>
                     }
                     <span class="session-code">@User.Identity.Name</span>
                     @if (User.IsInRole("Encargado"))
                     {
-                        <a asp-controller="Solicitudes" asp-action="Index">Solicitudes</a>
-                        <a asp-controller="Devoluciones" asp-action="Index">Devoluciones</a>
+                        <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Solicitudes" ? "is-current" : null)" asp-controller="Solicitudes" asp-action="Index">Solicitudes</a>
+                        <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Devoluciones" ? "is-current" : null)" asp-controller="Devoluciones" asp-action="Index">Devoluciones</a>
                     }
                     @if (User.IsInRole("Estudiante"))
                     {
-                        <a asp-controller="Reservas" asp-action="Index">Mis reservas</a>
+                        <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Reservas" ? "is-current" : null)" asp-controller="Reservas" asp-action="Index">Mis reservas</a>
                     }
                     <form asp-controller="Cuenta" asp-action="Salir" method="post">
                         <button type="submit" class="btn btn-outline-secondary btn-sm">Cerrar sesión</button>
@@ -37,7 +37,7 @@
             }
             else
             {
-                <span class="header-caption">Laboratorios universitarios</span>
+                <span class="header-caption">Gestión de equipos de laboratorio</span>
             }
         </nav>
     </header>

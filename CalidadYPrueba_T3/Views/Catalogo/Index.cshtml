@@ -4,7 +4,7 @@
     var categoria = Model.Categorias.FirstOrDefault(x => x.Id == Model.CategoriaId)?.Nombre;
 }
 <header class="page-heading catalog-heading">
-    <div><p class="eyebrow">EQUIPAMIENTO DEL LABORATORIO</p><h1>Catálogo de equipos</h1><p class="text-muted">Encuentra el material para tu próxima práctica.</p></div>
+    <div><h1>Catálogo de equipos</h1><p class="text-muted">Encuentra el material para tu próxima práctica.</p></div>
     @if (User.IsInRole("Encargado"))
     {
         <a class="btn btn-primary" asp-action="Crear">Registrar equipo</a>
@@ -48,20 +48,32 @@
             @foreach (var equipo in Model.Equipos)
             {
                 <li class="equipment-card">
-                    <div class="equipment-top"><span class="equipment-category">@equipo.Categoria</span><span class="equipment-status @(equipo.Prestado ? "is-borrowed" : "is-available")">@(equipo.Prestado ? "Prestado" : "Disponible")</span></div>
-                    <h2>@equipo.Nombre</h2>
-                    <dl><dt>Código de inventario</dt><dd>@equipo.CodigoInventario</dd></dl>
-                    @if (User.IsInRole("Estudiante"))
-                    {
-                        @if (!equipo.Prestado)
+                    <div class="equipment-image">
+                        @if (equipo.ImagenUrl is not null)
                         {
-                            <a class="btn btn-outline-secondary reserve-link" asp-controller="Reservas" asp-action="Crear" asp-route-equipoId="@equipo.Id">Solicitar reserva</a>
+                            <img src="@equipo.ImagenUrl" alt="Imagen referencial de @equipo.Nombre" loading="lazy" width="640" height="640" />
                         }
                         else
                         {
-                            <p class="equipment-unavailable">Pendiente de devolución</p>
+                            <span class="equipment-image-fallback" aria-hidden="true">LT</span>
                         }
-                    }
+                    </div>
+                    <div class="equipment-body">
+                        <div class="equipment-top"><span class="equipment-category">@equipo.Categoria</span><span class="equipment-status @(equipo.Prestado ? "is-borrowed" : "is-available")">@(equipo.Prestado ? "Prestado" : "Disponible")</span></div>
+                        <h2>@equipo.Nombre</h2>
+                        <dl><dt>Código de inventario</dt><dd>@equipo.CodigoInventario</dd></dl>
+                        @if (User.IsInRole("Estudiante"))
+                        {
+                            @if (!equipo.Prestado)
+                            {
+                                <a class="btn btn-primary reserve-link" asp-controller="Reservas" asp-action="Crear" asp-route-equipoId="@equipo.Id">Solicitar reserva</a>
+                            }
+                            else
+                            {
+                                <p class="equipment-unavailable">Pendiente de devolución</p>
+                            }
+                        }
+                    </div>
                 </li>
             }
         </ul>
@@ -74,5 +86,5 @@
             </nav>
         }
     }
-    <p class="catalog-note">Disponibilidad actual, consultada a las @Model.ConsultadoEn.ToOffset(TimeSpan.FromHours(-5)).ToString("HH:mm") (hora de Lima). Los horarios futuros se validarán al solicitar una reserva.</p>
+    <p class="catalog-note">Disponibilidad consultada a las @Model.ConsultadoEn.ToOffset(TimeSpan.FromHours(-5)).ToString("HH:mm") (hora de Lima). Los horarios futuros se validan al solicitar una reserva. Las imágenes son referenciales.</p>
 }

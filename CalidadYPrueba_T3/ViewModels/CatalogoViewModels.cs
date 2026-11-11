@@ -7,11 +7,21 @@ public record CategoriaOpcion(int Id, string Nombre);
 
 public class EquipoCatalogoItem
 {
+    private static readonly HashSet<string> CodigosConImagen = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "LAB-COM-001", "LAB-COM-002", "LAB-COM-003", "LAB-COM-004",
+        "LAB-ELE-001", "LAB-ELE-002", "LAB-ELE-003", "LAB-ELE-004",
+        "LAB-RED-001", "LAB-RED-002", "LAB-RED-003", "LAB-RED-004"
+    };
+
     public int Id { get; init; }
     public string Nombre { get; init; } = string.Empty;
     public string CodigoInventario { get; init; } = string.Empty;
     public string Categoria { get; init; } = string.Empty;
     public bool Prestado { get; init; }
+    public string? ImagenUrl => CodigosConImagen.Contains(CodigoInventario)
+        ? $"/images/equipos/{CodigoInventario.ToUpperInvariant()}.jpg"
+        : null;
 }
 
 public class CatalogoViewModel
