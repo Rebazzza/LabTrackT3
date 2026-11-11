@@ -17,6 +17,8 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<CatalogoService>();
 builder.Services.AddScoped<ReservaService>();
+builder.Services.AddScoped<SolicitudService>();
+builder.Services.AddScoped<DevolucionService>();
 builder.Services.AddDbContext<LabTrackDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("LabTrack")
         ?? throw new InvalidOperationException("Falta la conexión ConnectionStrings:LabTrack.")));

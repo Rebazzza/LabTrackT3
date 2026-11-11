@@ -118,7 +118,22 @@ h2 { font-size: 1.5rem; letter-spacing: -.02em; }
 .reservation-status-aprobada { color: #205f46; background: #e8f2e8; }
 .reservation-status-rechazada { color: #95333c; background: #f9e9eb; }
 .reservation-status-devuelta { color: #405b75; background: #eaf0f6; }
-@media (max-width: 767px) { .reservation-layout { grid-template-columns: minmax(0, 1fr); } }
+.requests-table-region { border: 1px solid var(--line); background: white; border-radius: 12px; overflow-x: auto; }
+.requests-scroll-hint { display: none; font-size: .8rem; }
+.requests-table { width: 100%; border-collapse: collapse; min-width: 780px; table-layout: fixed; }
+.requests-table th { font-size: .8rem; font-weight: 600; color: var(--muted); background: #eef2ed; text-align: left; }
+.requests-table th, .requests-table td { padding: 24px; vertical-align: top; overflow-wrap: anywhere; }
+.requests-table td { border-top: 1px solid var(--line); font-size: .9rem; }
+.requests-table th:last-child { width: 230px; }
+.request-secondary { display: block; margin-top: 6px; color: var(--muted); font-size: .8rem; }
+.request-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.request-actions form { margin: 0; }
+.request-expired { display: block; margin-top: 10px; color: #9b383a; font-size: .8rem; }
+.rejection-details { margin-block: 28px; padding-block: 20px; border-block: 1px solid var(--line); }
+.rejection-details dt { font-size: .85rem; color: var(--muted); font-weight: 400; }
+.rejection-details dd { margin: 6px 0 16px; overflow-wrap: anywhere; }
+.rejection-details dd:last-child { margin-bottom: 0; }
+@media (max-width: 767px) { .reservation-layout { grid-template-columns: minmax(0, 1fr); } .requests-scroll-hint { display: block; } }
 @media (max-width: 991px) { .equipment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 575px) {
     .equipment-grid { grid-template-columns: minmax(0, 1fr); }

@@ -2,7 +2,6 @@ using System.Data;
 using CalidadYPrueba_T3.Data;
 using CalidadYPrueba_T3.Models;
 using CalidadYPrueba_T3.ViewModels;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace CalidadYPrueba_T3.Services;
@@ -76,15 +75,11 @@ public class ReservaService(LabTrackDbContext db, TimeProvider reloj)
             await transaccion.CommitAsync(ct);
             return new(reserva.Id, null);
         }
-        catch (Exception ex) when (EsConflictoTemporal(ex))
+        catch (Exception ex) when (ConflictosBaseDatos.EsBloqueoTemporal(ex))
         {
             return new(null, "Otra solicitud se procesó al mismo tiempo. Vuelve a intentar para comprobar la disponibilidad actualizada.");
         }
     }
-
-    private static bool EsConflictoTemporal(Exception ex) =>
-        ex is SqlException { Number: 1205 or 1222 } ||
-        ex is DbUpdateException { InnerException: SqlException { Number: 1205 or 1222 } };
 
     public async Task<MisReservasViewModel> ConsultarPropiasAsync(string estudianteId, int pagina, CancellationToken ct)
     {
@@ -95,7 +90,8 @@ public class ReservaService(LabTrackDbContext db, TimeProvider reloj)
         var reservas = await consulta.OrderByDescending(x => x.CreadaEn).ThenByDescending(x => x.Id)
             .Skip((pagina - 1) * PorPagina).Take(PorPagina)
             .Select(x => new ReservaListaItem(x.Id, x.Equipo.Nombre, x.Equipo.CodigoInventario,
-                x.Inicio, x.Fin, x.Estado, x.MotivoRechazo, x.DevueltaEn)).ToListAsync(ct);
+                x.Inicio, x.Fin, x.Estado, x.MotivoRechazo, x.DevueltaEn,
+                x.Penalizacion != null ? x.Penalizacion.Motivo : null)).ToListAsync(ct);
         return new(reservas, total, pagina, totalPaginas);
     }
 }

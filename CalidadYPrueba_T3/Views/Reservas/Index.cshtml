@@ -23,6 +23,10 @@ else
                 <dl class="reservation-dates"><div><dt>Inicio</dt><dd>@reserva.Inicio.ToOffset(ReservaService.DesfaseLima).ToString("dd/MM/yyyy HH:mm")</dd></div><div><dt>Fin</dt><dd>@reserva.Fin.ToOffset(ReservaService.DesfaseLima).ToString("dd/MM/yyyy HH:mm")</dd></div></dl>
                 @if (reserva.MotivoRechazo is not null) { <p class="reservation-reason"><strong>Motivo de rechazo:</strong> @reserva.MotivoRechazo</p> }
                 @if (reserva.DevueltaEn.HasValue) { <p class="catalog-note">Devuelto el @reserva.DevueltaEn.Value.ToOffset(ReservaService.DesfaseLima).ToString("dd/MM/yyyy HH:mm").</p> }
+                @if (reserva.MotivoPenalizacion is not null)
+                {
+                    <p class="reservation-reason"><strong>Penalización:</strong> @reserva.MotivoPenalizacion</p>
+                }
             </li>
         }
     </ul>

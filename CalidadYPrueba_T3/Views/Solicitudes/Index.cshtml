@@ -1,0 +1,51 @@
+@model CalidadYPrueba_T3.ViewModels.SolicitudesViewModel
+@using CalidadYPrueba_T3.Services
+@{
+    ViewData["Title"] = "Solicitudes pendientes";
+}
+<header class="page-heading"><p class="eyebrow">GESTIÓN DE PRÉSTAMOS</p><h1>Solicitudes pendientes</h1><p class="text-muted">Revisa el equipo y el horario antes de aprobar. Las horas corresponden a Lima.</p></header>
+@if (TempData["SolicitudResuelta"] is string mensaje) { <div class="alert alert-success" role="status">@mensaje</div> }
+@if (TempData["ErrorSolicitud"] is string error) { <div class="alert alert-warning" role="alert">@error</div> }
+@if (Model.Total == 0)
+{
+    <section class="content-panel empty-catalog"><h2>No hay solicitudes pendientes</h2><p class="text-muted">Las nuevas solicitudes de los estudiantes aparecerán aquí.</p><a asp-controller="Encargado" asp-action="Index">Volver al panel</a></section>
+}
+else
+{
+    <p class="text-muted">@Model.Total @(Model.Total == 1 ? "solicitud pendiente" : "solicitudes pendientes") · Las más antiguas primero</p>
+    <p class="requests-scroll-hint text-muted">Desliza la tabla hacia los lados para ver los horarios y las acciones.</p>
+    <div class="requests-table-region" role="region" aria-label="Listado de solicitudes pendientes" tabindex="0">
+        <table class="requests-table">
+            <caption class="visually-hidden">Estudiantes, equipos, horarios solicitados y acciones de aprobación o rechazo</caption>
+            <thead><tr><th scope="col">Estudiante</th><th scope="col">Equipo</th><th scope="col">Horario solicitado</th><th scope="col">Acciones</th></tr></thead>
+            <tbody>
+                @foreach (var solicitud in Model.Solicitudes)
+                {
+                    <tr data-solicitud-id="@solicitud.Id">
+                        <td><strong>@solicitud.Estudiante</strong><span class="request-secondary">@solicitud.CodigoEstudiante</span><span class="request-secondary">Solicitud #@solicitud.Id</span></td>
+                        <td><strong>@solicitud.Equipo</strong><span class="request-secondary">@solicitud.Inventario</span></td>
+                        <td><time datetime="@solicitud.Inicio.ToString("O")">@solicitud.Inicio.ToOffset(ReservaService.DesfaseLima).ToString("dd/MM/yyyy HH:mm")</time><span class="request-secondary">hasta @solicitud.Fin.ToOffset(ReservaService.DesfaseLima).ToString("dd/MM/yyyy HH:mm")</span>
+                            @if (solicitud.Fin <= Model.Ahora) { <span class="request-expired">Horario finalizado</span> }
+                        </td>
+                        <td><div class="request-actions">
+                            @if (solicitud.Fin > Model.Ahora)
+                            {
+                                <form method="post" asp-action="Aprobar"><input type="hidden" name="Id" value="@solicitud.Id" /><input type="hidden" name="Version" value="@solicitud.Version" /><input type="hidden" name="Pagina" value="@Model.Pagina" /><button class="btn btn-primary btn-sm" type="submit" aria-label="Aprobar solicitud @solicitud.Id">Aprobar</button></form>
+                            }
+                            <a class="btn btn-outline-secondary btn-sm" asp-action="Rechazar" asp-route-id="@solicitud.Id" asp-route-pagina="@Model.Pagina" aria-label="Rechazar solicitud @solicitud.Id">Rechazar</a>
+                        </div></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav class="catalog-pagination" aria-label="Páginas de solicitudes">
+            @if (Model.Pagina > 1) { <a class="btn btn-outline-secondary" asp-route-pagina="@(Model.Pagina - 1)">Anterior</a> }
+            <span aria-current="page">Página @Model.Pagina de @Model.TotalPaginas</span>
+            @if (Model.Pagina < Model.TotalPaginas) { <a class="btn btn-outline-secondary" asp-route-pagina="@(Model.Pagina + 1)">Siguiente</a> }
+        </nav>
+    }
+    <p class="catalog-note">La disponibilidad se comprueba nuevamente al aprobar. Una solicitud pendiente todavía no garantiza el préstamo.</p>
+}

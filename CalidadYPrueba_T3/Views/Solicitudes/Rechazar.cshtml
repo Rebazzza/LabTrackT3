@@ -1,0 +1,16 @@
+@model CalidadYPrueba_T3.ViewModels.RechazarSolicitudViewModel
+@using CalidadYPrueba_T3.Services
+@{
+    ViewData["Title"] = "Rechazar solicitud";
+}
+<section class="content-panel narrow-panel">
+    <p class="eyebrow">SOLICITUD #@Model.Solicitud!.Id</p><h1>Rechazar solicitud</h1>
+    <p class="text-muted">El estudiante podrá consultar el motivo en sus reservas.</p>
+    <dl class="rejection-details"><dt>Estudiante</dt><dd>@Model.Solicitud.Estudiante · @Model.Solicitud.CodigoEstudiante</dd><dt>Equipo</dt><dd>@Model.Solicitud.Equipo · @Model.Solicitud.Inventario</dd><dt>Horario en Lima</dt><dd>@Model.Solicitud.Inicio.ToOffset(ReservaService.DesfaseLima).ToString("dd/MM/yyyy HH:mm") – @Model.Solicitud.Fin.ToOffset(ReservaService.DesfaseLima).ToString("dd/MM/yyyy HH:mm")</dd></dl>
+    <form method="post" asp-action="Rechazar">
+        <input asp-for="Id" type="hidden" /><input asp-for="Version" type="hidden" /><input asp-for="Pagina" type="hidden" />
+        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+        <div class="mb-4"><label asp-for="Motivo" class="form-label"></label><textarea asp-for="Motivo" class="form-control" rows="4" maxlength="500" aria-describedby="motivo-help motivo-error"></textarea><p id="motivo-help" class="catalog-note mt-2">Explica brevemente el motivo. Máximo 500 caracteres.</p><span asp-validation-for="Motivo" id="motivo-error" class="field-error"></span></div>
+        <div class="form-actions"><button type="submit" class="btn btn-danger">Confirmar rechazo</button><a asp-action="Index" asp-route-pagina="@Model.Pagina">Volver sin rechazar</a></div>
+    </form>
+</section>

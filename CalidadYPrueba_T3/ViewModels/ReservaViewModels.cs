@@ -36,6 +36,7 @@ public class CrearReservaViewModel
 }
 
 public record ReservaListaItem(int Id, string Equipo, string Inventario, DateTimeOffset Inicio,
-    DateTimeOffset Fin, EstadoReserva Estado, string? MotivoRechazo, DateTimeOffset? DevueltaEn);
+    DateTimeOffset Fin, EstadoReserva Estado, string? MotivoRechazo, DateTimeOffset? DevueltaEn,
+    string? MotivoPenalizacion);
 
 public record MisReservasViewModel(IReadOnlyList<ReservaListaItem> Reservas, int Total, int Pagina, int TotalPaginas);

@@ -1,0 +1,87 @@
+@model CalidadYPrueba_T3.ViewModels.DevolucionesViewModel
+@using CalidadYPrueba_T3.Services
+@{
+    ViewData["Title"] = "Devoluciones";
+}
+<header class="page-heading">
+    <h1>Devoluciones</h1>
+    <p class="text-muted">Registra la entrega física del equipo. Los horarios corresponden a Lima.</p>
+</header>
+@if (TempData["DevolucionRegistrada"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+@if (TempData["ErrorDevolucion"] is string error)
+{
+    <div class="alert alert-warning" role="alert">@error</div>
+}
+<form method="get" asp-action="Index" class="catalog-filters">
+    <div>
+        <label for="buscar" class="form-label">Estudiante o equipo</label>
+        <input id="buscar" name="buscar" type="search" class="form-control" maxlength="100"
+               value="@Model.Buscar" placeholder="Nombre o código" />
+    </div>
+    <button type="submit" class="btn btn-primary">Buscar</button>
+    @if (!string.IsNullOrEmpty(Model.Buscar))
+    {
+        <a class="filter-clear" asp-action="Index">Limpiar búsqueda</a>
+    }
+</form>
+@if (Model.Prestamos.Count == 0)
+{
+    <section class="content-panel empty-catalog mt-4">
+        <h2>@(string.IsNullOrEmpty(Model.Buscar) ? "No hay préstamos por devolver" : "No se encontraron préstamos para esa búsqueda")</h2>
+    </section>
+}
+else
+{
+    <p class="text-muted mt-4">@Model.Total @(Model.Total == 1 ? "préstamo activo" : "préstamos activos")</p>
+    <p class="requests-scroll-hint text-muted">Desliza la tabla hacia los lados para ver la hora límite y registrar la devolución.</p>
+    <div class="requests-table-region" role="region" aria-label="Préstamos activos" tabindex="0">
+        <table class="requests-table">
+            <caption class="visually-hidden">Préstamos disponibles para registrar su devolución</caption>
+            <thead>
+                <tr><th scope="col">Estudiante</th><th scope="col">Equipo</th><th scope="col">Hora límite</th><th scope="col">Acción</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var prestamo in Model.Prestamos)
+                {
+                    <tr>
+                        <td><strong>@prestamo.Estudiante</strong><span class="request-secondary">@prestamo.CodigoEstudiante</span></td>
+                        <td><strong>@prestamo.Equipo</strong><span class="request-secondary">@prestamo.Inventario</span></td>
+                        <td>
+                            <time datetime="@prestamo.Fin.ToString("O")">@prestamo.Fin.ToOffset(ReservaService.DesfaseLima).ToString("dd/MM/yyyy HH:mm")</time>
+                            @if (Model.Ahora > prestamo.Fin)
+                            {
+                                <span class="request-expired">Vencido · aplica penalización</span>
+                            }
+                        </td>
+                        <td>
+                            <form method="post" asp-action="Registrar">
+                                <input type="hidden" name="Id" value="@prestamo.Id" />
+                                <input type="hidden" name="Version" value="@Convert.ToBase64String(prestamo.Version)" />
+                                <input type="hidden" name="Pagina" value="@Model.Pagina" />
+                                <input type="hidden" name="buscar" value="@Model.Buscar" />
+                                <button type="submit" class="btn btn-primary btn-sm">Marcar devolución</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav class="catalog-pagination" aria-label="Páginas de préstamos activos">
+            @if (Model.Pagina > 1)
+            {
+                <a class="btn btn-outline-secondary" asp-route-buscar="@Model.Buscar" asp-route-pagina="@(Model.Pagina - 1)">Anterior</a>
+            }
+            <span aria-current="page">Página @Model.Pagina de @Model.TotalPaginas</span>
+            @if (Model.Pagina < Model.TotalPaginas)
+            {
+                <a class="btn btn-outline-secondary" asp-route-buscar="@Model.Buscar" asp-route-pagina="@(Model.Pagina + 1)">Siguiente</a>
+            }
+        </nav>
+    }
+}

@@ -11,19 +11,18 @@ namespace CalidadYPrueba_T3.Controllers;
 
 [Authorize(Roles = Roles.Encargado)]
 [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-public class EncargadoController(LabTrackDbContext db, UserManager<Usuario> usuarios) : Controller
+public class EncargadoController(LabTrackDbContext db, UserManager<Usuario> usuarios, TimeProvider reloj) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
         var usuario = await usuarios.GetUserAsync(User);
         if (usuario is null) return Challenge();
-        var cantidades = await db.Reservas.AsNoTracking().GroupBy(x => x.Estado)
-            .Select(x => new { Estado = x.Key, Cantidad = x.Count() })
-            .ToDictionaryAsync(x => x.Estado, x => x.Cantidad, cancellationToken);
+        var ahora = reloj.GetUtcNow();
+        var pendientes = await db.Reservas.CountAsync(x => x.Estado == EstadoReserva.Pendiente, cancellationToken);
+        var porDevolver = await db.Reservas.CountAsync(
+            x => x.Estado == EstadoReserva.Aprobada && x.Inicio <= ahora, cancellationToken);
         var equipos = await db.Equipos.CountAsync(cancellationToken);
-        return View(new PanelEncargadoViewModel(usuario.NombreCompleto,
-            cantidades.GetValueOrDefault(EstadoReserva.Pendiente),
-            cantidades.GetValueOrDefault(EstadoReserva.Aprobada), equipos));
+        return View(new PanelEncargadoViewModel(usuario.NombreCompleto, pendientes, porDevolver, equipos));
     }
 }

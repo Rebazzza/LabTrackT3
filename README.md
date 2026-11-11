@@ -1,6 +1,6 @@
 # LabTrack
 
-Aplicación de gestión de préstamos de equipos de laboratorio construida con ASP.NET Core MVC sobre .NET 10. Están implementados la base técnica, el acceso por rol, los paneles, el catálogo y la solicitud y consulta de reservas del estudiante. La aprobación, rechazo y devolución se desarrollarán en las siguientes etapas.
+Aplicación de gestión de préstamos de equipos de laboratorio construida con ASP.NET Core MVC sobre .NET 10. Incluye acceso por rol, catálogo, solicitudes de reserva, aprobación y rechazo, devoluciones y penalización por retraso.
 
 ## Dependencias
 
@@ -41,7 +41,7 @@ Para otro servidor, configurar `ConnectionStrings__LabTrack` mediante una variab
 - `Security`: nombres de roles compartidos.
 - `Controllers` y `Views`: interfaz MVC existente; se ampliará por funcionalidad.
 
-`Services/CatalogoService.cs` concentra las consultas de catálogo y el alta de equipos. Los ViewModels definen los datos de las pantallas sin exponer las entidades para edición. Los futuros controladores de reservas y devoluciones también delegarán sus reglas en servicios.
+`Services/CatalogoService.cs` concentra las consultas de catálogo y el alta de equipos. Los controladores de reservas, solicitudes y devoluciones delegan las reglas de negocio en sus servicios. Los ViewModels definen los datos de las pantallas.
 
 ## Modelo de datos
 
@@ -59,7 +59,7 @@ La migración inicial inserta las categorías **Cómputo**, **Electrónica** y *
 
 ## Integridad y decisiones del modelo
 
-- Las fechas usan `DateTimeOffset`; se deben persistir en UTC y presentar con el horario local de Lima en las futuras pantallas.
+- Las fechas se guardan en UTC con `DateTimeOffset` y se muestran en hora de Lima.
 - Estados de reserva: Pendiente, Aprobada, Rechazada y Devuelta.
 - SQL exige inicio anterior al fin, estados válidos, motivo de rechazo no vacío y datos de resolución/devolución coherentes con el estado.
 - Las eliminaciones de categorías, equipos, estudiantes, encargados o reservas con historial relacionado están restringidas.
@@ -103,18 +103,17 @@ Ejecuta después el perfil HTTPS e ingresa en `https://localhost:7116/Cuenta/Log
 
 Ambos roles pueden abrir `/Catalogo` desde la navegación o desde su panel. El catálogo muestra nombre, código de inventario, categoría y estado Disponible/Prestado. El filtro utiliza la categoría exacta seleccionada entre Cómputo, Electrónica y Redes; `Limpiar filtro` devuelve el listado completo. Una categoría vacía muestra el mensaje exigido: `No hay equipos disponibles en esta categoría`.
 
-La disponibilidad corresponde al momento de la consulta. Una reserva aprobada cuyo inicio ya llegó mantiene el equipo Prestado hasta su devolución física, incluso si venció su horario. Las reservas futuras, pendientes, rechazadas o devueltas no lo marcan como prestado en ese momento. Esto no garantiza disponibilidad para un horario futuro: esa validación pertenecerá al módulo de reservas.
+La disponibilidad corresponde al momento de la consulta. Una reserva aprobada cuyo inicio ya llegó mantiene el equipo Prestado hasta su devolución física, incluso si venció su horario. El sistema comprueba la disponibilidad para el bloque solicitado al crear y aprobar la reserva.
 
 La consulta utiliza la hora UTC de `TimeProvider`, proyecta solo los datos necesarios y obtiene páginas de 12 equipos ordenados por nombre e identificador. Los enlaces de paginación conservan la categoría. Filtros mal formados, categorías inexistentes y páginas menores que 1 reciben una respuesta 400 con un mensaje visible. Una página superior al total se ajusta a la última existente.
 
 El encargado puede abrir `Registrar equipo`, completar nombre, código y categoría y guardar el equipo en la base de datos. El código se normaliza a mayúsculas y se eliminan espacios al inicio y final. El índice único protege también frente a altas simultáneas con el mismo código. El estudiante no puede acceder a esta acción mediante GET ni POST. No se insertan equipos de demostración automáticamente.
 
-## Próxima implementación
+## Devoluciones y penalización
 
-1. Panel de solicitudes para el encargado, con aprobación y rechazo. La aprobación deberá volver a comprobar los cruces por equipo y por estudiante dentro de una transacción serializable.
-2. Servicio de devolución que actualice reserva, penalización y estado del estudiante dentro de una misma transacción.
+El encargado abre `Devoluciones` desde la navegación o el panel. Puede buscar préstamos iniciados por nombre o código del estudiante o del equipo. Al seleccionar `Marcar devolución`, LabTrack guarda la hora del servidor y el encargado responsable y libera el equipo en el catálogo.
 
-La solicitud de reserva ya valida solapamientos. Las transiciones posteriores y la penalización automática todavía no están implementadas. El efecto de la penalización sobre futuras solicitudes queda pendiente de definición. La planificación y ejecución de las pruebas académicas se abordará después de desarrollar la aplicación.
+Cuando la devolución ocurre después del fin acordado, LabTrack registra una penalización para la reserva y cambia el estado del estudiante a Penalizado. La devolución y la penalización se guardan juntas. El estudiante consulta la fecha de devolución y el motivo en `Mis reservas`. El efecto de la penalización sobre futuras solicitudes queda pendiente de definición.
 
 ## Solicitudes de reserva
 
@@ -132,7 +131,17 @@ Reglas implementadas en `Services/ReservaService.cs`:
 - La creación usa una transacción Serializable para mantener juntas la comprobación y la inserción. Si SQL Server detecta un interbloqueo o agotamiento del tiempo de bloqueo, se muestra un mensaje para reintentar sin guardar una solicitud parcial.
 - El estudiante y el estado inicial se asignan en el servidor. No se aceptan desde el formulario. El encargado no puede enviar solicitudes como estudiante.
 
-Las solicitudes pendientes de estudiantes distintos pueden coincidir sobre un equipo; ninguna garantiza el préstamo hasta su aprobación. El futuro módulo de aprobación deberá revalidar y resolver esos conflictos. Un equipo prestado debe devolverse antes de poder solicitarlo de nuevo. La condición Penalizado todavía no restringe solicitudes porque su efecto no está definido en los documentos.
+Las solicitudes pendientes de estudiantes distintos pueden coincidir sobre un equipo; ninguna garantiza el préstamo hasta su aprobación. El módulo de aprobación revalida esos conflictos. Un equipo prestado debe devolverse antes de poder solicitarlo de nuevo. La condición Penalizado todavía no restringe solicitudes porque su efecto no está definido en los documentos.
+
+## Aprobación y rechazo de solicitudes
+
+El encargado abre `/Solicitudes` desde la navegación o desde `Revisar solicitudes` en su panel. La tabla muestra nombre y código del estudiante, equipo e inventario, fecha y horas de uso y las acciones Aprobar/Rechazar. Se muestran diez solicitudes por página, de la más antigua a la más reciente. Las solicitudes cuyo horario ya finalizó se pueden rechazar, pero no aprobar.
+
+La aprobación se realiza mediante POST con token antifalsificación. `SolicitudService` vuelve a leer la solicitud y comprueba que siga Pendiente y que su versión coincida con la que se mostró al encargado. Dentro de una transacción Serializable valida que el horario no haya finalizado, que el equipo no esté pendiente de devolución, que no haya otra aprobación incompatible para ese equipo y que el estudiante no tenga otro equipo aprobado simultáneamente. Los bloques consecutivos se permiten.
+
+El rechazo abre una pantalla con el detalle y exige un motivo de hasta 500 caracteres. El texto se guarda sin espacios al inicio y al final. Ambas resoluciones registran la cuenta del encargado y la fecha UTC, cambian el estado y retiran la solicitud de la bandeja. El estudiante ve el nuevo estado y, si corresponde, el motivo en `Mis reservas`.
+
+Las decisiones ya guardadas no pueden sobrescribirse desde este módulo. Una pantalla desactualizada o una operación concurrente muestra un aviso sin cambiar el resultado. No se rechazan automáticamente otras solicitudes que queden en conflicto: el encargado puede revisarlas y justificar individualmente su decisión. El estado Disponible/Prestado del catálogo sigue calculándose según el bloque de tiempo y la devolución física; una aprobación futura no marca el equipo como Prestado antes de comenzar.
 
 ## Mantenimiento del esquema
 

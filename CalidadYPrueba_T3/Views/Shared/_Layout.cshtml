@@ -21,6 +21,11 @@
                         <a asp-controller="Catalogo" asp-action="Index">Catálogo</a>
                     }
                     <span class="session-code">@User.Identity.Name</span>
+                    @if (User.IsInRole("Encargado"))
+                    {
+                        <a asp-controller="Solicitudes" asp-action="Index">Solicitudes</a>
+                        <a asp-controller="Devoluciones" asp-action="Index">Devoluciones</a>
+                    }
                     @if (User.IsInRole("Estudiante"))
                     {
                         <a asp-controller="Reservas" asp-action="Index">Mis reservas</a>
