@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace CalidadYPrueba_T3.Data.Migrations
+namespace CalidadYPrueba_T3.Migrations
 {
     /// <inheritdoc />
-    public partial class InicialLabTrack : Migration
+    public partial class M1_Corregida : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

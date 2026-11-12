@@ -4,19 +4,16 @@ using CalidadYPrueba_T3.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace CalidadYPrueba_T3.Data.Migrations
+namespace CalidadYPrueba_T3.Migrations
 {
     [DbContext(typeof(LabTrackDbContext))]
-    [Migration("20261110182249_InicialLabTrack")]
-    partial class InicialLabTrack
+    partial class LabTrackDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
