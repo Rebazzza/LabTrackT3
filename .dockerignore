@@ -1,0 +1,16 @@
+.git
+.vs
+.agents
+.codex
+**/bin
+**/obj
+artifacts
+*.user
+*.suo
+*.mdf
+*.ldf
+*.docx
+README.md
+dotnet-tools.json
+.env
+.env.*

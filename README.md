@@ -13,6 +13,57 @@ Aplicación de gestión de préstamos de equipos de laboratorio construida con A
 
 ## Ejecución en desarrollo
 
+### Con Docker Compose
+
+Requisitos: Docker Desktop en modo contenedores Linux, con Docker Compose, y memoria suficiente para SQL Server (al menos 2 GB disponibles).
+
+Desde la raíz del repositorio, copia `.env.example` a `.env` y cambia `MSSQL_SA_PASSWORD` por una contraseña fuerte propia. Evita `;` en esa contraseña, ya que se incorpora en una cadena de conexión. `.env` está excluido de Git.
+
+```powershell
+Copy-Item .env.example .env
+docker compose up --build -d
+```
+
+Abre `http://localhost:8080/Cuenta/Login`. `LABTRACK_PORT` permite cambiar el puerto del host. Compose inicia la aplicación y SQL Server; la aplicación espera a que SQL Server acepte conexiones y aplica las migraciones pendientes. Los datos de SQL Server y las claves de sesión se conservan en los volúmenes `sqlserver_data` y `aspnet_keys`. El servidor SQL no expone su puerto al host.
+
+Para crear la primera cuenta, con los contenedores ya iniciados:
+
+```powershell
+$env:AltaUsuario__Codigo = Read-Host 'Código de usuario'
+$env:AltaUsuario__Nombre = Read-Host 'Nombre completo'
+$env:AltaUsuario__Rol = Read-Host 'Rol (Encargado o Estudiante)'
+$labTrackClave = Read-Host 'Contraseña' -AsSecureString
+try {
+    $env:AltaUsuario__Password = [System.Net.NetworkCredential]::new('', $labTrackClave).Password
+    docker compose run --rm -e AltaUsuario__Codigo -e AltaUsuario__Nombre -e AltaUsuario__Rol -e AltaUsuario__Password web --crear-usuario
+} finally {
+    Remove-Item Env:AltaUsuario__Password -ErrorAction SilentlyContinue
+    Remove-Item Env:AltaUsuario__Codigo -ErrorAction SilentlyContinue
+    Remove-Item Env:AltaUsuario__Nombre -ErrorAction SilentlyContinue
+    Remove-Item Env:AltaUsuario__Rol -ErrorAction SilentlyContinue
+    $labTrackClave.Dispose()
+}
+```
+
+Para ver los registros, usa `docker compose logs -f web`. `docker compose down` detiene los servicios y conserva la base de datos. `docker compose down -v` elimina también sus datos.
+
+Esta configuración sirve para desarrollo local: usa HTTP y permite cookies de sesión sin HTTPS solo cuando `ASPNETCORE_ENVIRONMENT=Development` y `LabTrack__AllowInsecureHttp=true`. Para un despliegue público, configura HTTPS en el proxy de entrada y no actives esa opción.
+
+### Compartir una URL HTTPS temporal para pruebas
+
+Para una prueba breve con el equipo encendido, inicia un túnel de Cloudflare encima de Compose:
+
+```powershell
+docker compose -f compose.yaml -f compose.tunnel.yaml up -d
+docker compose -f compose.yaml -f compose.tunnel.yaml logs tunnel
+```
+
+Los registros muestran una URL `https://...trycloudflare.com` que puedes compartir. La aplicación se ejecuta en modo Production, y Cloudflare ofrece HTTPS hacia los visitantes. La URL funciona mientras Docker Desktop, la aplicación y el túnel sigan activos; cambiará si el contenedor del túnel se recrea. Para detener el túnel y volver a la configuración local: `docker compose -f compose.yaml -f compose.tunnel.yaml down` y luego `docker compose up -d`. Los volúmenes conservan la base de datos.
+
+El túnel rápido es para pruebas; admite hasta 200 solicitudes simultáneas y devuelve HTTP 429 al superar ese límite. En JMeter, un 429 o la latencia del túnel no mide únicamente el rendimiento de LabTrack.
+
+### Sin Docker
+
 Requisitos: SDK .NET 10 y SQL Server LocalDB con la instancia `MSSQLLocalDB`.
 
 Desde la raíz del repositorio, en PowerShell:

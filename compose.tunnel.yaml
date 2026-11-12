@@ -1,0 +1,14 @@
+services:
+  web:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      LabTrack__AllowInsecureHttp: "false"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      ASPNETCORE_HTTPS_PORT: "443"
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate --url http://web:8080
+    depends_on:
+      - web
+    restart: unless-stopped

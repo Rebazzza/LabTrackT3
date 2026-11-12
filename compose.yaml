@@ -1,0 +1,26 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Define MSSQL_SA_PASSWORD en .env}
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+
+  web:
+    build: .
+    depends_on:
+      - db
+    volumes:
+      - aspnet_keys:/home/app/.aspnet/DataProtection-Keys
+    ports:
+      - "127.0.0.1:${LABTRACK_PORT:-8080}:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__LabTrack: "Server=db;Database=LabTrackDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:?Define MSSQL_SA_PASSWORD en .env};Encrypt=True;TrustServerCertificate=True"
+      LabTrack__ApplyMigrations: "true"
+      LabTrack__AllowInsecureHttp: "true"
+
+volumes:
+  sqlserver_data:
+  aspnet_keys:
