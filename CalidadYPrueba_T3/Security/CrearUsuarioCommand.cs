@@ -18,7 +18,7 @@ public static class CrearUsuarioCommand
             string.IsNullOrEmpty(password) || password.Length > 256 ||
             rol is not (Roles.Estudiante or Roles.Encargado))
         {
-            Console.Error.WriteLine("Configura AltaUsuario__Codigo, AltaUsuario__Nombre, AltaUsuario__Password y AltaUsuario__Rol (Estudiante o Encargado).");
+            await Console.Error.WriteLineAsync("Configura AltaUsuario__Codigo, AltaUsuario__Nombre, AltaUsuario__Password y AltaUsuario__Rol (Estudiante o Encargado).");
             return 1;
         }
 
@@ -28,7 +28,7 @@ public static class CrearUsuarioCommand
         var roles = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         if (!await roles.RoleExistsAsync(rol))
         {
-            Console.Error.WriteLine("El rol no existe. Aplica primero las migraciones de la base de datos.");
+            await Console.Error.WriteLineAsync("El rol no existe. Aplica primero las migraciones de la base de datos.");
             return 1;
         }
 
@@ -39,13 +39,13 @@ public static class CrearUsuarioCommand
         if (!resultado.Succeeded)
         {
             // No registrar credenciales ni modificar cuentas existentes.
-            Console.Error.WriteLine("No se pudo crear la cuenta: " +
+            await Console.Error.WriteLineAsync("No se pudo crear la cuenta: " +
                 string.Join(", ", resultado.Errors.Select(x => x.Code)));
             return 1;
         }
 
         await transaction.CommitAsync();
-        Console.WriteLine("Cuenta creada con el rol solicitado.");
+        await Console.Out.WriteLineAsync("Cuenta creada con el rol solicitado.");
         return 0;
     }
 }

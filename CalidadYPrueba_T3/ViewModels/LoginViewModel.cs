@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace CalidadYPrueba_T3.ViewModels;
 
@@ -15,6 +16,8 @@ public class LoginViewModel
     [Display(Name = "Contraseña")]
     public string Password { get; set; } = string.Empty;
 
+    [BindRequired]
+    [Required(ErrorMessage = "Indica si deseas mantener la sesión.")]
     [Display(Name = "Mantener mi sesión en este equipo")]
     public bool Recordarme { get; set; }
     public string? ReturnUrl { get; set; }

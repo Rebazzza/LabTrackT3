@@ -6,8 +6,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
+var allowInsecureHttp = builder.Environment.IsDevelopment() &&
+    builder.Configuration.GetValue<bool>("LabTrack:AllowInsecureHttp");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews(options =>
@@ -40,7 +43,9 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Cuenta/AccesoDenegado";
     options.Cookie.Name = "LabTrack.Auth";
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = allowInsecureHttp
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     options.SlidingExpiration = true;
 });
@@ -53,6 +58,25 @@ if (args.Contains("--crear-usuario", StringComparer.Ordinal))
     return;
 }
 
+if (app.Configuration.GetValue<bool>("LabTrack:ApplyMigrations"))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<LabTrackDbContext>();
+    for (var attempt = 1; ; attempt++)
+    {
+        try
+        {
+            await db.Database.MigrateAsync();
+            break;
+        }
+        catch (SqlException) when (attempt < 30)
+        {
+            // SQL Server can still be starting when the application container begins.
+            await Task.Delay(TimeSpan.FromSeconds(2));
+        }
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -61,7 +85,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+if (!allowInsecureHttp) app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthentication();
@@ -75,4 +99,4 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 
-app.Run();
+await app.RunAsync();

@@ -6,3 +6,4 @@
 *.mdf
 *.ldf
 artifacts/
+.env
